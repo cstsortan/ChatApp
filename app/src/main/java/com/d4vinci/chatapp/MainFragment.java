@@ -27,7 +27,7 @@ import com.google.firebase.database.Query;
 public class MainFragment extends Fragment {
     private RecyclerView recyclerView;
     private LinearLayoutManager layoutManager;
-    private RecyclerView.Adapter adapter;
+    private FirebaseRecyclerAdapter adapter;
     private DatabaseReference mRef;
 
     private EditText etMsg;
@@ -66,7 +66,7 @@ public class MainFragment extends Fragment {
                     mRef.child("messages").push().setValue(new Chat(etName.getText().toString(), etMsg.getText().toString()));
                 }
                 etMsg.setText("");
-                recyclerView.smoothScrollToPosition(adapter.getItemCount());
+                autoScroll();
             }
         });
 
@@ -93,6 +93,7 @@ public class MainFragment extends Fragment {
             @Override
             protected void onChildChanged(ChangeEventListener.EventType type, int index, int oldIndex) {
                 super.onChildChanged(type, index, oldIndex);
+                autoScroll();
             }
         };
         recyclerView.setAdapter(adapter);
@@ -100,6 +101,9 @@ public class MainFragment extends Fragment {
         return v;
     }
 
+    private void autoScroll() {
+        recyclerView.smoothScrollToPosition(adapter.getItemCount());
+    }
 
 
     public static class ChatHolder extends RecyclerView.ViewHolder {
@@ -123,4 +127,9 @@ public class MainFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        adapter.cleanup();
+    }
 }
