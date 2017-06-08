@@ -1,10 +1,13 @@
 package com.d4vinci.chatapp;
 
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,9 +33,9 @@ public class MainFragment extends Fragment {
     private FirebaseRecyclerAdapter adapter;
     private DatabaseReference mRef;
 
-    private EditText etMsg;
-    private EditText etName;
-    private Button btSend;
+    EditText etMsg;
+    EditText etName;
+    Button btSend;
 
     public MainFragment() {
         // Required empty public constructor
@@ -88,6 +91,11 @@ public class MainFragment extends Fragment {
             public void populateViewHolder(ChatHolder chatMessageViewHolder, Chat chatMessage, int position) {
                 chatMessageViewHolder.setName(chatMessage.getName());
                 chatMessageViewHolder.setText(chatMessage.getText());
+                if(chatMessage.getName().equals(etName.getText().toString())) {
+                    chatMessageViewHolder.alignRight();
+                } else {
+                    chatMessageViewHolder.alignLeft();
+                }
             }
 
             @Override
@@ -110,11 +118,13 @@ public class MainFragment extends Fragment {
 
         TextView tv_msg;
         TextView tv_name;
+        CardView cvMsg;
 
         public ChatHolder(View itemView) {
             super(itemView);
             tv_msg = (TextView) itemView.findViewById(R.id.tv_message);
             tv_name = (TextView) itemView.findViewById(R.id.tv_name);
+            cvMsg = (CardView)itemView.findViewById(R.id.cv_msg);
 
         }
 
@@ -124,6 +134,18 @@ public class MainFragment extends Fragment {
 
         public void setText(String text) {
             tv_msg.setText(text);
+        }
+
+        public void alignRight() {
+            cvMsg.setForegroundGravity(Gravity.RIGHT);
+            cvMsg.setBackgroundColor(Color.YELLOW);
+        }
+
+        public void alignLeft() {
+            cvMsg.setForegroundGravity(Gravity.LEFT);
+            cvMsg.setBackgroundColor(Color.BLUE);
+            tv_msg.setTextColor(Color.WHITE);
+            tv_name.setTextColor(Color.WHITE);
         }
     }
 
