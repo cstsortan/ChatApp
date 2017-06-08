@@ -79,7 +79,7 @@ public class MainFragment extends Fragment {
         // use a linear layout manager
         layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         layoutManager.setStackFromEnd(true);
-        layoutManager.setReverseLayout(true);
+        layoutManager.setReverseLayout(false);
         recyclerView.setLayoutManager(layoutManager);
 
 
