@@ -137,12 +137,12 @@ public class MainFragment extends Fragment {
         }
 
         public void alignRight() {
-            cvMsg.setForegroundGravity(Gravity.RIGHT);
             cvMsg.setBackgroundColor(Color.YELLOW);
+            tv_msg.setTextColor(Color.BLACK);
+            tv_name.setTextColor(Color.BLACK);
         }
 
         public void alignLeft() {
-            cvMsg.setForegroundGravity(Gravity.LEFT);
             cvMsg.setBackgroundColor(Color.BLUE);
             tv_msg.setTextColor(Color.WHITE);
             tv_name.setTextColor(Color.WHITE);
