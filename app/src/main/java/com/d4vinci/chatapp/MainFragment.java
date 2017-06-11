@@ -21,6 +21,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 
+import java.util.Calendar;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -65,8 +67,10 @@ public class MainFragment extends Fragment {
         btSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                Calendar now = Calendar.getInstance();
                 if(!etMsg.getText().toString().equals("")) {
-                    mRef.child("messages").push().setValue(new Chat(etName.getText().toString(), etMsg.getText().toString()));
+                    mRef.child("messages").push().setValue(new Chat(etName.getText().toString(), etMsg.getText().toString(), String.valueOf(now.getTime())));
                 }
                 etMsg.setText("");
                 autoScroll();
@@ -91,6 +95,7 @@ public class MainFragment extends Fragment {
             public void populateViewHolder(ChatHolder chatMessageViewHolder, Chat chatMessage, int position) {
                 chatMessageViewHolder.setName(chatMessage.getName());
                 chatMessageViewHolder.setText(chatMessage.getText());
+                chatMessageViewHolder.setTime(chatMessage.getTime());
                 if(chatMessage.getName().equals(etName.getText().toString())) {
                     chatMessageViewHolder.alignRight();
                 } else {
@@ -118,6 +123,7 @@ public class MainFragment extends Fragment {
 
         TextView tv_msg;
         TextView tv_name;
+        TextView tv_time;
         CardView cvMsg;
 
         public ChatHolder(View itemView) {
@@ -125,7 +131,7 @@ public class MainFragment extends Fragment {
             tv_msg = (TextView) itemView.findViewById(R.id.tv_message);
             tv_name = (TextView) itemView.findViewById(R.id.tv_name);
             cvMsg = (CardView)itemView.findViewById(R.id.cv_msg);
-
+            tv_time = (TextView) itemView.findViewById(R.id.tv_time);
         }
 
         public void setName(String name) {
@@ -134,6 +140,10 @@ public class MainFragment extends Fragment {
 
         public void setText(String text) {
             tv_msg.setText(text);
+        }
+
+        public void setTime(String time) {
+            tv_time.setText(time);
         }
 
         public void alignRight() {

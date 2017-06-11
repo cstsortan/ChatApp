@@ -6,11 +6,13 @@ package com.d4vinci.chatapp
 class Chat {
     var name: String=""
     var text: String=""
+    var time: String=""
 
     constructor() {}
 
-    constructor(name: String, text: String) {
+    constructor(name: String, text: String, time: String) {
         this.name = name
         this.text = text
+        this.time = time
     }
 }
