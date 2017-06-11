@@ -96,6 +96,7 @@ public class MainFragment extends Fragment {
                 chatMessageViewHolder.setName(chatMessage.getName());
                 chatMessageViewHolder.setText(chatMessage.getText());
                 chatMessageViewHolder.setTime(chatMessage.getTime());
+                chatMessageViewHolder.cvMsg.setRadius(32);
                 if(chatMessage.getName().equals(etName.getText().toString())) {
                     chatMessageViewHolder.alignRight();
                 } else {
@@ -132,6 +133,7 @@ public class MainFragment extends Fragment {
             tv_name = (TextView) itemView.findViewById(R.id.tv_name);
             cvMsg = (CardView)itemView.findViewById(R.id.cv_msg);
             tv_time = (TextView) itemView.findViewById(R.id.tv_time);
+            cvMsg.setRadius(8.0f);
         }
 
         public void setName(String name) {
@@ -147,15 +149,17 @@ public class MainFragment extends Fragment {
         }
 
         public void alignRight() {
-            cvMsg.setBackgroundColor(Color.YELLOW);
+            cvMsg.setCardBackgroundColor(Color.YELLOW);
             tv_msg.setTextColor(Color.BLACK);
             tv_name.setTextColor(Color.BLACK);
+            tv_time.setTextColor(Color.BLACK);
         }
 
         public void alignLeft() {
-            cvMsg.setBackgroundColor(Color.BLUE);
+            cvMsg.setCardBackgroundColor(Color.BLUE);
             tv_msg.setTextColor(Color.WHITE);
             tv_name.setTextColor(Color.WHITE);
+            tv_time.setTextColor(Color.WHITE);
         }
     }
 
