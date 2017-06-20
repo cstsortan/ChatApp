@@ -7,13 +7,14 @@ class Chat {
     var name: String=""
     var text: String=""
     var time: String=""
-
+    var photo: String=""
 
     constructor() {}
 
-    constructor(name: String, text: String, time: String) {
+    constructor(name: String, text: String, time: String, photo: String) {
         this.name = name
         this.text = text
         this.time = time
+        this.photo = photo
     }
 }

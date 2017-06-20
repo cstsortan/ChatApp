@@ -29,12 +29,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
+            android:layout_weight="1"
             android:orientation="vertical"
             android:padding="4dp">
 
             <TextView
                 android:id="@+id/tv_message"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Message"
                 android:textAppearance="@android:style/TextAppearance.Large" />
@@ -48,11 +49,16 @@
 
             <TextView
                 android:id="@+id/tv_time"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="TextView"
                 android:textAppearance="@android:style/TextAppearance.Small"
                 android:textSize="10sp" />
+
+            <ImageView
+                android:id="@+id/iv_photo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
     </LinearLayout>

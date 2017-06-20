@@ -10,6 +10,8 @@ import com.firebase.ui.auth.ResultCodes
 import com.google.firebase.auth.FirebaseAuth
 import java.util.*
 
+
+
 class MainActivity : AppCompatActivity() {
 
     private val RC_SIGN_IN = 123

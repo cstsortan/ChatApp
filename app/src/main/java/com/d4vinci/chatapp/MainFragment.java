@@ -1,8 +1,13 @@
 package com.d4vinci.chatapp;
 
 
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,15 +18,25 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Calendar;
+
+import static android.app.Activity.RESULT_OK;
 
 
 /**
@@ -31,16 +46,22 @@ import java.util.Calendar;
  */
 public class MainFragment extends Fragment {
 
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+
     private RecyclerView recyclerView;
     private LinearLayoutManager layoutManager;
     private FirebaseRecyclerAdapter adapter;
+    private MainActivity mainActivity;
 
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+    StorageReference reference = FirebaseStorage.getInstance().getReference();
 
     private static DatabaseReference mRef = FirebaseDatabase.getInstance().getReference();
 
     EditText etMsg;
     ImageView btSend;
+    ImageView btAddPhoto;
 
     public MainFragment() {
         // Required empty public constructor
@@ -61,6 +82,9 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_main, container, false);
+
+        mainActivity =(MainActivity) getActivity();
+
         etMsg = (EditText) v.findViewById(R.id.et_message);
         btSend = (ImageView) v.findViewById(R.id.bt_send);
         btSend.setOnClickListener(new View.OnClickListener() {
@@ -71,10 +95,21 @@ public class MainFragment extends Fragment {
                 if(!etMsg.getText().toString().equals("")) {
                     mRef.child("messages")
                             .push()
-                            .setValue(new Chat(user.getDisplayName().toString(), etMsg.getText().toString(), String.valueOf(now.getTime())));
+                            .setValue(new Chat(user.getDisplayName().toString(),
+                                    etMsg.getText().toString(),
+                                    String.valueOf(now.getTime()),
+                                    ""));
                 }
                 etMsg.setText("");
                 autoScroll();
+            }
+        });
+
+        btAddPhoto = (ImageView) v.findViewById(R.id.bt_add_photo);
+        btAddPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dispatchTakePictureIntent();
             }
         });
 
@@ -82,6 +117,8 @@ public class MainFragment extends Fragment {
         initializeRecyclerView();
         return v;
     }
+
+
 
     private void initializeRecyclerView() {
         // use this setting to improve performance if you know that changes
@@ -101,6 +138,9 @@ public class MainFragment extends Fragment {
                 chatMessageViewHolder.setName(chatMessage.getName());
                 chatMessageViewHolder.setText(chatMessage.getText());
                 chatMessageViewHolder.setTime(chatMessage.getTime());
+                if(!chatMessage.getPhoto().equals("")) {
+                    chatMessageViewHolder.setPhoto(chatMessage.getPhoto());
+                }
                 chatMessageViewHolder.cvMsg.setRadius(32);
                 if(chatMessage.getName().equals(user.getDisplayName().toString())) {
                     chatMessageViewHolder.alignRight();
@@ -129,7 +169,8 @@ public class MainFragment extends Fragment {
         TextView tv_name;
         TextView tv_time;
         CardView cvMsg;
-        ImageView ivPic;
+        ImageView ivPic;  //the profile pic
+        ImageView ivPhoto; //the message one
 
         public ChatHolder(View itemView) {
             super(itemView);
@@ -139,6 +180,7 @@ public class MainFragment extends Fragment {
             tv_time = (TextView) itemView.findViewById(R.id.tv_time);
             cvMsg.setRadius(8.0f);
             ivPic = (ImageView) itemView.findViewById(R.id.iv_prof);
+            ivPhoto = (ImageView) itemView.findViewById(R.id.iv_photo);
         }
 
         public void setName(String name) {
@@ -151,6 +193,12 @@ public class MainFragment extends Fragment {
 
         public void setTime(String time) {
             tv_time.setText(time);
+        }
+
+        public void setPhoto(String uri) {
+            Glide.with(itemView.getContext())
+                    .load(uri)
+                    .into(ivPhoto);
         }
 
         public void alignRight() {
@@ -168,6 +216,46 @@ public class MainFragment extends Fragment {
             tv_name.setTextColor(Color.WHITE);
             tv_time.setTextColor(Color.WHITE);
         }
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(mainActivity.getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            uploadPhoto(imageBitmap);
+        }
+    }
+
+    private void uploadPhoto(Bitmap bitmap) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] data = baos.toByteArray();
+        final DatabaseReference ref = mRef.child("messages").push();
+        UploadTask uploadTask = reference.child(ref.getKey()).putBytes(data);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+                Toast.makeText(mainActivity, "error", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+                Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                if (downloadUrl != null) {
+                    ref.setValue(new Chat(user.getDisplayName(), "", Calendar.getInstance().getTime().toString(), downloadUrl.toString()));
+                }
+            }
+        });
     }
 
     @Override
