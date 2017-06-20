@@ -1,53 +1,26 @@
 package com.d4vinci.chatapp;
 
 
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.ErrorCodes;
-import com.firebase.ui.auth.IdpResponse;
-import com.firebase.ui.auth.ResultCodes;
-import com.firebase.ui.auth.ui.*;
-import com.firebase.ui.database.ChangeEventListener;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Calendar;
 
 
@@ -68,8 +41,6 @@ public class MainFragment extends Fragment {
 
     EditText etMsg;
     ImageView btSend;
-    Button btMedia;
-    MediaPlayer mediaPlayer;
 
     public MainFragment() {
         // Required empty public constructor
@@ -92,15 +63,15 @@ public class MainFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_main, container, false);
         etMsg = (EditText) v.findViewById(R.id.et_message);
         btSend = (ImageView) v.findViewById(R.id.bt_send);
-        btMedia = (Button) v.findViewById(R.id.bt_media);
-
         btSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 Calendar now = Calendar.getInstance();
                 if(!etMsg.getText().toString().equals("")) {
-                    mRef.child("messages").push().setValue(new Chat(user.getDisplayName().toString(), etMsg.getText().toString(), String.valueOf(now.getTime())));
+                    mRef.child("messages")
+                            .push()
+                            .setValue(new Chat(user.getDisplayName().toString(), etMsg.getText().toString(), String.valueOf(now.getTime())));
                 }
                 etMsg.setText("");
                 autoScroll();
@@ -110,27 +81,6 @@ public class MainFragment extends Fragment {
         recyclerView = (RecyclerView) v.findViewById(R.id.rv_messages);
         initializeRecyclerView();
         return v;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mediaPlayer = MediaPlayer.create(getContext(), Uri.parse("http://usa2.fastcast4u.com:3684"));
-        mediaPlayer.start();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mediaPlayer.release();
-        mediaPlayer=null;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-//        mediaPlayer.release();
-//        mediaPlayer=null;
     }
 
     private void initializeRecyclerView() {
@@ -225,28 +175,4 @@ public class MainFragment extends Fragment {
         super.onDestroy();
         adapter.cleanup();
     }
-
-//    class RadioTask extends AsyncTask<Void, Void, Void> {
-//
-//        @Override
-//        protected Void doInBackground(Void... params) {
-//            String url = "http://usa2.fastcast4u.com:3684"; // your URL here
-//            MediaPlayer mediaPlayer = new MediaPlayer();
-//            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-//            try {
-//                mediaPlayer.setDataSource(url);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                Log.d("exception", "onStart: ioException by .setDataSource() method");
-//            }
-//            try {
-//                mediaPlayer.prepare(); // might take long! (for buffering, etc)
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                Log.d("exception", "onStart: ioException by .prepare() method");
-//            }
-//            mediaPlayer.start();
-//            return null;
-//        }
-//    }
 }

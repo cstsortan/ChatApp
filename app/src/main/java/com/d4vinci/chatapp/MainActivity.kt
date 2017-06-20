@@ -1,36 +1,42 @@
 package com.d4vinci.chatapp
 
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import com.firebase.ui.auth.AuthUI
-import java.util.*
 import com.firebase.ui.auth.ErrorCodes
-import com.firebase.ui.auth.ResultCodes
 import com.firebase.ui.auth.IdpResponse
+import com.firebase.ui.auth.ResultCodes
 import com.google.firebase.auth.FirebaseAuth
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
     private val RC_SIGN_IN = 123
-    var savedInstanceState: Bundle? = null
+
+    var savedState: Bundle? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        savedState = savedInstanceState
         setContentView(R.layout.activity_main)
-        this.savedInstanceState = savedInstanceState
-    }
 
-    override fun onStart() {
-        super.onStart()
+        var btStart = findViewById(R.id.btStart)
+        btStart.setOnClickListener {
+            stopService(Intent(this, RadioService::class.java))
+            startService(Intent(this, RadioService::class.java)) }
+        var btStop = findViewById(R.id.btStop)
+        btStop.setOnClickListener { stopService(Intent(this, RadioService::class.java)) }
+
         if (FirebaseAuth.getInstance().currentUser != null) {
             //already signed in
-            loadMainFragment(savedInstanceState)
+            loadMainFragment()
         } else {
             //not signed in
             logInUser()
         }
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -41,9 +47,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun loadMainFragment(b: Bundle?) {
+    fun loadMainFragment() {
         if (findViewById(R.id.container_activity_main) != null) {
-            if(b!=null) return
+            if (savedState != null) {
+                return
+            }
             val mainFragment = MainFragment.newInstance()
             supportFragmentManager
                     .beginTransaction()
@@ -71,7 +79,7 @@ class MainActivity : AppCompatActivity() {
 
         // Successfully signed in
         if (resultCode == ResultCodes.OK) {
-            loadMainFragment(savedInstanceState)
+            loadMainFragment()
             return
         } else {
             // Sign in failed

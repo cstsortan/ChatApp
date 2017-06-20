@@ -8,6 +8,7 @@ class Chat {
     var text: String=""
     var time: String=""
 
+
     constructor() {}
 
     constructor(name: String, text: String, time: String) {
