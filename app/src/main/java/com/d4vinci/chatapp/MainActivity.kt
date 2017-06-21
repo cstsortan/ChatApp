@@ -69,8 +69,10 @@ class MainActivity : AppCompatActivity() {
                         .setAvailableProviders(
                                 Arrays.asList(
                                         AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build(),
-                                        AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build()
+                                        AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build(),
+                                        AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build()
                                 ))
+                        .setLogo(R.drawable.goradio)
                         .setIsSmartLockEnabled(false)
                         .build(),
                 RC_SIGN_IN)

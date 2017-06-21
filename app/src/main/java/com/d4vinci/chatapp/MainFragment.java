@@ -49,7 +49,6 @@ public class MainFragment extends Fragment {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
 
     private RecyclerView recyclerView;
-    private LinearLayoutManager layoutManager;
     private FirebaseRecyclerAdapter adapter;
     private MainActivity mainActivity;
 
@@ -68,8 +67,7 @@ public class MainFragment extends Fragment {
     }
 
     public static MainFragment newInstance() {
-        MainFragment fragment = new MainFragment();
-        return fragment;
+        return new MainFragment();
     }
 
     @Override
@@ -95,7 +93,7 @@ public class MainFragment extends Fragment {
                 if(!etMsg.getText().toString().equals("")) {
                     mRef.child("messages")
                             .push()
-                            .setValue(new Chat(user.getDisplayName().toString(),
+                            .setValue(new Chat(user.getDisplayName()==null?"Failed to read name":user.getDisplayName(),
                                     etMsg.getText().toString(),
                                     String.valueOf(now.getTime()),
                                     ""));
@@ -126,7 +124,7 @@ public class MainFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
-        layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         layoutManager.setStackFromEnd(true);
         layoutManager.setReverseLayout(false);
         recyclerView.setLayoutManager(layoutManager);
@@ -138,11 +136,10 @@ public class MainFragment extends Fragment {
                 chatMessageViewHolder.setName(chatMessage.getName());
                 chatMessageViewHolder.setText(chatMessage.getText());
                 chatMessageViewHolder.setTime(chatMessage.getTime());
-                if(!chatMessage.getPhoto().equals("")) {
-                    chatMessageViewHolder.setPhoto(chatMessage.getPhoto());
-                }
+                chatMessageViewHolder.setPhoto(chatMessage.getPhoto());
+
                 chatMessageViewHolder.cvMsg.setRadius(32);
-                if(chatMessage.getName().equals(user.getDisplayName().toString())) {
+                if(chatMessage.getName().equals(user.getDisplayName())) {
                     chatMessageViewHolder.alignRight();
                 } else {
                     chatMessageViewHolder.alignLeft();
@@ -163,7 +160,7 @@ public class MainFragment extends Fragment {
     }
 
 
-    public static class ChatHolder extends RecyclerView.ViewHolder {
+    private static class ChatHolder extends RecyclerView.ViewHolder {
 
         TextView tv_msg;
         TextView tv_name;
