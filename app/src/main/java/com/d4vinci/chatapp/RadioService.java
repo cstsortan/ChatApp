@@ -28,7 +28,7 @@ public class RadioService extends Service implements MediaPlayer.OnErrorListener
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(final Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand: service started");
         if (mMediaPlayer == null) {
             mMediaPlayer = new MediaPlayer();
@@ -42,21 +42,61 @@ public class RadioService extends Service implements MediaPlayer.OnErrorListener
             mMediaPlayer.setOnPreparedListener(this);
             mMediaPlayer.prepareAsync(); // prepare async to not block main thread
             mMediaPlayer.setOnErrorListener(this);
+            mMediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+                @Override
+                public void onBufferingUpdate(MediaPlayer mp, int percent) {
+                    Log.d(TAG, "onBufferingUpdate: "+percent);
+                }
+            });
+            mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                @Override
+                public boolean onError(MediaPlayer mp, int what, int extra) {
+                    Log.d(TAG, "onError: what="+what);
+                    Log.d(TAG, "onError: extra="+extra);
+                    if(what==MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == -2147483648) {
+                        restartService(intent);
+                        return true;
+                    } else if(what == MediaPlayer.MEDIA_ERROR_TIMED_OUT) {
+                        restartService(intent);
+                        return true;
+                    }
+                    return false;
+                }
+            });
+            mMediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+                @Override
+                public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                    switch (what) {
+                        case 703:
+                            Log.d(TAG, "onInfo: 703, network brandwidth: " + extra);
+                            restartService(intent);
+                            return true;
+                    }
+                    return false;
+                }
+            });
             mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         }
 
         return super.onStartCommand(intent, flags, startId);
     }
 
+    private void restartService(Intent intent) {
+        Log.d(TAG, "restartService: Service restarted with old intent!");
+        stopService(intent);
+        startService(intent);
+    }
+
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         Log.d(TAG, "onError: The MediaPlayer has moved to the Error state, must be reset!");
-        return false;
+        mp.reset();
+        return true;
     }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        Log.d(TAG, "onPrepared: ");
+        Log.d(TAG, "onPrepared: after this, it starts");
         mp.start();
     }
 
