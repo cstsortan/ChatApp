@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 26
     buildToolsVersion "25.0.3"
     defaultConfig {
         applicationId "com.d4vinci.chatapp"
         minSdkVersion 16
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -26,16 +26,13 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.google.firebase:firebase-database:11.0.1'
     compile 'com.google.firebase:firebase-auth:11.0.1'
     compile 'com.google.firebase:firebase-storage:11.0.1'
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.android.support:recyclerview-v7:25.3.1'
     compile 'com.firebaseui:firebase-ui:2.0.1'
-    compile 'com.android.support:cardview-v7:25.3.1'
-    compile 'com.facebook.android:facebook-android-sdk:4.22.1'
+    compile 'com.facebook.android:facebook-android-sdk:4.23.0'
+    compile 'com.google.android.gms:play-services-auth:11.0.1'
     testCompile 'junit:junit:4.12'
 }
 

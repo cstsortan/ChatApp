@@ -106,6 +106,7 @@ public class MainFragment extends Fragment {
         Log.d(TAG, "onCreateView: my pic is" + user.getPhotoUrl());
 
         etMsg = (EditText) v.findViewById(R.id.et_message);
+
         btSend = (ImageView) v.findViewById(R.id.bt_send);
         btSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,7 +115,7 @@ public class MainFragment extends Fragment {
                 Calendar now = Calendar.getInstance();
                 if(!etMsg.getText().toString().equals("")) {
                     Message message = new Message(myUser.getUid(), etMsg.getText().toString(), now.getTime().toString(), "");
-                    mRef.child("messages-test")
+                    mRef.child("messages")
                             .push()
                             .setValue(message);
                 }
@@ -151,7 +152,7 @@ public class MainFragment extends Fragment {
 
 
     private FirebaseRecyclerAdapter initializeRecyclerViewAdapter(final int messagesShown) {
-        messagesQuery = mRef.child("messages-test").limitToLast(messagesShown);
+        messagesQuery = mRef.child("messages").limitToLast(messagesShown);
         this.messagesShown = messagesShown;
         return new FirebaseRecyclerAdapter<Message, ChatHolder>
                 (Message.class,
@@ -192,7 +193,7 @@ public class MainFragment extends Fragment {
     }
 
 
-    private static class ChatHolder extends RecyclerView.ViewHolder {
+    public static class ChatHolder extends RecyclerView.ViewHolder {
 
         private TextView tv_msg;
         private TextView tv_name;
@@ -249,7 +250,7 @@ public class MainFragment extends Fragment {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] data = baos.toByteArray();
-        final DatabaseReference ref = mRef.child("messages-test").push();
+        final DatabaseReference ref = mRef.child("messages").push();
         UploadTask uploadTask = reference.child(ref.getKey()).putBytes(data);
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override

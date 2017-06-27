@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
     tools:context="com.d4vinci.chatapp.MainFragment">
 
 
@@ -21,12 +23,13 @@
 
     <EditText
         android:id="@+id/et_message"
-        style="@android:style/Widget.Holo.Light.EditText"
+        style="@android:style/Widget.Holo.AutoCompleteTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Enter message!"
         android:inputType="textPersonName"
+        android:selectAllOnFocus="true"
         android:textColor="#FFF"
         android:textColorHint="#FFFFFF"
         android:textColorLink="@android:color/holo_red_dark"

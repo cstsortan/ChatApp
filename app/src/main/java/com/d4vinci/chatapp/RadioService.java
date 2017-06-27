@@ -7,6 +7,8 @@ import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -15,10 +17,13 @@ import java.io.IOException;
  * Created by D4Vinci on 6/20/2017.
  */
 
-public class RadioService extends Service implements MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener {
+public class RadioService extends Service {
+
+    static boolean isServiceOn=false;
 
     private static final String TAG = "TAG - RadioService";
     MediaPlayer mMediaPlayer = null;
+    private PhoneStateListener phoneStateListener;
 
     @Nullable
     @Override
@@ -30,24 +35,32 @@ public class RadioService extends Service implements MediaPlayer.OnErrorListener
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand: service started");
+        isServiceOn=true;
         if (mMediaPlayer == null) {
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             try {
                 mMediaPlayer.setDataSource("http://usa2.fastcast4u.com:3684");
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.d(TAG, "onStartCommand: IOException");
             }
-            mMediaPlayer.setOnPreparedListener(this);
-            mMediaPlayer.prepareAsync(); // prepare async to not block main thread
-            mMediaPlayer.setOnErrorListener(this);
             mMediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
                 @Override
-                public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                    Log.d(TAG, "onBufferingUpdate: "+percent);
+                public void onBufferingUpdate(MediaPlayer mediaPlayer, int i) {
+                    Log.d(TAG, "onBufferingUpdate: "+ i + "%");
                 }
             });
+            mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mediaPlayer) {
+                    mediaPlayer.start();
+                }
+            });
+            mMediaPlayer.prepareAsync(); // prepare async to not block main thread
             mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
@@ -76,8 +89,26 @@ public class RadioService extends Service implements MediaPlayer.OnErrorListener
                 }
             });
             mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
-        }
+            phoneStateListener = new PhoneStateListener() {
+                @Override
+                public void onCallStateChanged(int state, String incomingNumber) {
+                    if (state == TelephonyManager.CALL_STATE_RINGING) {
+                        //Incoming call: Pause music
+                        stopService(intent);
+                    } else if(state == TelephonyManager.CALL_STATE_IDLE) {
+                        //Not in call: Play music
 
+                    } else if(state == TelephonyManager.CALL_STATE_OFFHOOK) {
+                        //A call is dialing, active or on hold
+                    }
+                    super.onCallStateChanged(state, incomingNumber);
+                }
+            };
+            TelephonyManager mgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+            if(mgr != null) {
+                mgr.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+            }
+        }
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -88,23 +119,16 @@ public class RadioService extends Service implements MediaPlayer.OnErrorListener
     }
 
     @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        Log.d(TAG, "onError: The MediaPlayer has moved to the Error state, must be reset!");
-        mp.reset();
-        return true;
-    }
-
-    @Override
-    public void onPrepared(MediaPlayer mp) {
-        Log.d(TAG, "onPrepared: after this, it starts");
-        mp.start();
-    }
-
-
-    @Override
     public void onDestroy() {
+        isServiceOn=false;
         Log.d(TAG, "onDestroy: destroyed");
         super.onDestroy();
-        mMediaPlayer.release();
+        TelephonyManager mgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        if(mgr != null) {
+            mgr.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+        }
+        if (mMediaPlayer != null) {
+            mMediaPlayer.release();
+        }
     }
 }

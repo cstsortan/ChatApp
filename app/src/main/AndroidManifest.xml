@@ -3,6 +3,7 @@
     package="com.d4vinci.chatapp">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
         android:name=".MyApplication"
