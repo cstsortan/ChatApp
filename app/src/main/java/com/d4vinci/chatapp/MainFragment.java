@@ -68,6 +68,7 @@ public class MainFragment extends Fragment {
     ImageView btAddPhoto;
     private int messagesShown;
     private Query messagesQuery;
+    private String messagesPath = "messages-test";
 
     public MainFragment() {
         // Required empty public constructor
@@ -115,7 +116,7 @@ public class MainFragment extends Fragment {
                 Calendar now = Calendar.getInstance();
                 if(!etMsg.getText().toString().equals("")) {
                     Message message = new Message(myUser.getUid(), etMsg.getText().toString(), now.getTime().toString(), "");
-                    mRef.child("messages")
+                    mRef.child(messagesPath)
                             .push()
                             .setValue(message);
                 }
@@ -152,7 +153,7 @@ public class MainFragment extends Fragment {
 
 
     private FirebaseRecyclerAdapter initializeRecyclerViewAdapter(final int messagesShown) {
-        messagesQuery = mRef.child("messages").limitToLast(messagesShown);
+        messagesQuery = mRef.child(messagesPath).limitToLast(messagesShown);
         this.messagesShown = messagesShown;
         return new FirebaseRecyclerAdapter<Message, ChatHolder>
                 (Message.class,
@@ -250,7 +251,7 @@ public class MainFragment extends Fragment {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] data = baos.toByteArray();
-        final DatabaseReference ref = mRef.child("messages").push();
+        final DatabaseReference ref = mRef.child(messagesPath).push();
         UploadTask uploadTask = reference.child(ref.getKey()).putBytes(data);
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override

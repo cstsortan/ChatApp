@@ -15,11 +15,19 @@
       },
       "oauth_client": [
         {
-          "client_id": "863854190204-0kd5oadbo0cc5plmik3qrug97t5pleum.apps.googleusercontent.com",
+          "client_id": "863854190204-5cr7jolt64ugrpb2u56jmkgm1k37pdou.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.d4vinci.chatapp",
-            "certificate_hash": "100e79b7726312e93c82e5c3cd827db55a4ce3e3"
+            "certificate_hash": "1c08e7a6318d6124bfc34a2179e47259f01dd043"
+          }
+        },
+        {
+          "client_id": "863854190204-9ipg4p37nu4kdd5kg4cmrltajvr3oqfp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.d4vinci.chatapp",
+            "certificate_hash": "2dcf7171c41d253a9e3d20590a704f35e8ea456f"
           }
         },
         {

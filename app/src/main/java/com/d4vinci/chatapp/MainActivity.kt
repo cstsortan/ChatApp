@@ -1,13 +1,19 @@
 package com.d4vinci.chatapp
 
 import android.content.Intent
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Base64
+import android.util.Log
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.IdpResponse
 import com.firebase.ui.auth.ResultCodes
 import com.google.firebase.auth.FirebaseAuth
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
 import java.util.*
 
 
@@ -20,6 +26,24 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        try {
+            var info: PackageInfo = packageManager.getPackageInfo(
+                    "com.d4vinci.chatapp",
+                    PackageManager.GET_SIGNATURES);
+
+            for(sig in info.signatures) {
+                var md:MessageDigest = MessageDigest.getInstance("SHA")
+                md.update(sig.toByteArray())
+                Log.d("KeyHash", Base64.encodeToString(md.digest(), Base64.DEFAULT))
+            }
+
+        } catch (e:PackageManager.NameNotFoundException) {
+
+        } catch (e: NoSuchAlgorithmException) {
+
+        }
+
         savedState = savedInstanceState
         setContentView(R.layout.activity_main)
 
